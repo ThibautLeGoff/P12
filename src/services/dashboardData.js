@@ -9,10 +9,7 @@ import {
 } from './userService.js'
 
 // Indique si l'on doit utiliser l'API distante ou les données locales.
-// Je convertis la variable d'environnement en string , je vérifie qu'elle existe 
-// (sinon je prends 'false' par défaut), 
-// je la convertis en minuscules et je la compare à 'true' pour obtenir un booléen fiable.
-const USE_API = String(import.meta.env.VITE_USE_API ?? 'false').toLowerCase() === 'true'
+const USE_API = import.meta.env.VITE_USE_API === 'true'
 
 // Utilisateur factice par défaut (aucune donnée associée).
 const FALLBACK_USER = {

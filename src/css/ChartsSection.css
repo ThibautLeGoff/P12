@@ -46,6 +46,20 @@ width:100%;
 
 }
 
+.charts-unavailable {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 320px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+}
+
 @media (max-width: 960px) {
   .charts-content {
     grid-template-columns: 1fr;

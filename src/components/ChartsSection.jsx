@@ -10,6 +10,14 @@ import { getDashboardData } from '../services/dashboardData.js'
 
 import '../css/ChartsSection.css'
 
+function hasDashboardChartData(data) {
+  const hasActivity = Array.isArray(data?.activitySessions) && data.activitySessions.length > 0
+  const hasAverage = Array.isArray(data?.averageSessions) && data.averageSessions.length > 0
+  const hasPerformance = Array.isArray(data?.performance?.data) && data.performance.data.length > 0
+
+  return hasActivity && hasAverage && hasPerformance
+}
+
 // Section principale qui orchestre le chargement et l'affichage des graphiques.
 function ChartsSection({ userId: userIdProp }) {
   // Récupère l'ID utilisateur depuis les paramètres d'URL via useParams.
@@ -24,28 +32,31 @@ function ChartsSection({ userId: userIdProp }) {
 
   }, [userIdParam, userIdProp]) // Tableau de dépendances de useMemo
 
-  // Mise en place d'un useState pour stocker les données du tableau de bord, avec des valeurs par défaut.
-  const [dashboardData, setDashboardData] = useState({
-    firstName: '',
-    score: 0,
-    keyData: {},
-    activitySessions: [],
-    averageSessions: [],
-    performance: null,
-  })
+  // `null` signifie "aucune donnée exploitable".
+  const [dashboardData, setDashboardData] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     let isMounted = true
 
     const loadDashboard = async () => {
+      setIsLoading(true)
+
       try {
         // Charge les données en fonction de l'utilisateur choisi.
         const data = await getDashboardData(resolvedUserId)
         if (isMounted) {
-          setDashboardData(data)
+          setDashboardData(hasDashboardChartData(data) ? data : null)
         }
       } catch (error) {
         console.error(error)
+        if (isMounted) {
+          setDashboardData(null)
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
+        }
       }
     }
 
@@ -57,6 +68,18 @@ function ChartsSection({ userId: userIdProp }) {
   }, [resolvedUserId])
 
   // Déstructure les données pour alimenter les sous-composants.
+  if (!isLoading && !dashboardData) {
+    return (
+      <section className="charts">
+        <div className="charts-unavailable">Données indisponible</div>
+      </section>
+    )
+  }
+
+  if (!dashboardData) {
+    return null
+  }
+
   const {
     firstName,
     score,
